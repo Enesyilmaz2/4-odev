@@ -4,17 +4,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Sayısal Loto Oyunu</title>
+    <!-- Tailwind CSS'i CDN'den dahil etme -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 
 <body>
-    <a href="index.html">Anasayfaya Git !</a>
-    <br>
-    <h1>Soru 2</h1>
-    <br>
 
 
+    <div class="container">
 
+        <h1>Soru 2</h1>
+        <!-- Ana sayfaya dönme butonu -->
+        <button class="mt-4">
+            <a href="index.html">Anasayfaya Git !</a>
+        </button>
+
+        <br>
+
+        <br /> <br />
+        <h1 class="text-2xl font-bold mb-4">Sayısal Loto Oyunu</h1>
+        <p class="mb-4">Aşağıdaki inputlara tahminlerinizi giriniz:</p>
+        <!-- Tahmin inputları -->
+        <div id="tahmin-alanlari" class="flex space-x-2 mb-4">
+            <input type="number" id="tahmin1" class="border p-1 text-center w-16" min="1" max="49">
+            <input type="number" id="tahmin2" class="border p-1 text-center w-16" min="1" max="49">
+            <input type="number" id="tahmin3" class="border p-1 text-center w-16" min="1" max="49">
+            <input type="number" id="tahmin4" class="border p-1 text-center w-16" min="1" max="49">
+            <input type="number" id="tahmin5" class="border p-1 text-center w-16" min="1" max="49">
+            <input type="number" id="tahmin6" class="border p-1 text-center w-16" min="1" max="49">
+        </div>
+        <!-- Tahmin girme butonu -->
+        <button id="tahmin-gir" class="px-4 py-2 bg-blue-500 text-white rounded mb-4">Tahmin Gir</button>
+        <br>
+        <hr>
+        <br>
+        <!-- Kura çekme butonu -->
+        <button id="kurayi-cek" class="px-4 py-2 bg-gray-500 text-white rounded mb-4" disabled>Kurayı Çek</button>
+        <!-- Loto sayıları -->
+        <p class="mt-4">Loto Sayıları</p>
+        <div class="flex space-x-2 mt-2 mb-4 loto-sayilari" id="loto-sayilari">
+            <input type="text" class="border p-1 text-center w-16" disabled>
+            <input type="text" class="border p-1 text-center w-16" disabled>
+            <input type="text" class="border p-1 text-center w-16" disabled>
+            <input type="text" class="border p-1 text-center w-16" disabled>
+            <input type="text" class="border p-1 text-center w-16" disabled>
+            <input type="text" class="border p-1 text-center w-16" disabled>
+        </div>
+        <!-- Sonuç alanları -->
+        <div id="sonuc" class="mt-4 p-2 text-center"></div>
+        <div id="bilinen-sayilar" class="mt-2 p-2 text-center"></div>
+        <div id="bilinen-adet" class="mt-2 p-2 text-center"></div>
+
+    </div>
+
+    <script>
+        let kullaniciTahminleri = [];
+
+        // Kullanıcının tahminlerini al ve doğrula
+        function tahminGir() {
+            const tahminler = [];
+            const tahminInput = document.querySelectorAll("#tahmin-alanlari input");
+
+            for (const input of tahminInput) {
+                const tahmin = parseInt(input.value);
+                if (isNaN(tahmin) || tahmin < 1 || tahmin > 49) {
+                    alert("1-49 arasında bir sayı girmelisiniz");
+                    input.value = "";
+                } else if (tahminler.includes(tahmin)) {
+                    alert("Her sayıyı sadece bir kez seçebilirsiniz");
+                    input.value = "";
+                } else {
+                    tahminler.push(tahmin);
+                }
+            }
+
+            if (tahminler.length !== 6) {
+                alert("Lütfen 6 farklı sayı giriniz.");
+                return;
+            }
+
+            tahminler.sort((a, b) => a - b);
+            const sonucDiv = document.getElementById("sonuc");
+            sonucDiv.textContent = `Tahminleriniz: ${tahminler.join(", ")}`;
+            kullaniciTahminleri = tahminler;
+
+            document.getElementById('tahmin-gir').disabled = true;
+            document.getElementById('kurayi-cek').disabled = false;
+        }
+
+        // Rastgele loto sayıları çek ve sonucu hesapla
+        function kurayiCek() {
+            const lotoSayilari = [];
+            while (lotoSayilari.length < 6) {
+                const sayi = Math.floor(Math.random() * 49) + 1;
+                if (!lotoSayilari.includes(sayi)) {
+                    lotoSayilari.push(sayi);
+                }
+            }
+            lotoSayilari.sort((a, b) => a - b);
+            const lotoSayilariInput = document.querySelectorAll(".loto-sayilari input");
+
+            lotoSayilari.forEach((sayi, index) => {
+                lotoSayilariInput[index].value = sayi;
+            });
+
+            const bilinenler = kullaniciTahminleri.filter(tahmin => lotoSayilari.includes(tahmin));
+            const bilinenSayilar = document.getElementById("bilinen-sayilar");
+            bilinenSayilar.textContent = `Bilinen Sayılar: ${bilinenler.join(", ")}`;
+            const bilinenAdet = document.getElementById("bilinen-adet");
+            bilinenAdet.textContent = `Bilinen Adet: ${bilinenler.length}`;
+        }
+
+        // Sayı inputlarını kontrol et ve doğrula
+        const allNumberInputs = document.querySelectorAll('input[type="number"]');
+        allNumberInputs.forEach(input => {
+            input.addEventListener("blur", handleInputBlur);
+        });
+
+        function handleInputBlur(event) {
+            const input = event.target;
+            const value = Math.floor(parseFloat(input.value));
+
+            if (input.value === "" || isNaN(value) || value < 1 || value > 49) {
+                if (input.value !== "") {
+                    alert("1-49 sayıları arasında bir sayı girmelisiniz");
+                }
+                input.value = "";
+                return;
+            }
+
+            input.value = value;
+
+            const inputs = Array.from(allNumberInputs).filter(i => i !== input);
+
+            if (inputs.some(i => Math.floor(parseFloat(i.value)) === value)) {
+                alert("Aynı tahmin bir kez girilebilir.");
+                input.value = "";
+            }
+        }
+
+        document.getElementById('tahmin-gir').addEventListener('click', tahminGir);
+        document.getElementById('kurayi-cek').addEventListener('click', kurayiCek);
+    </script>
 </body>
 
 </html>
